@@ -1,0 +1,81 @@
+<section class="container">
+  <div class="logout-container">
+    <button class="btn logout" [routerLink]="['']">Cerrar sesión</button>
+  </div>
+
+  <h1>Desafíos del Rally Fotográfico</h1>
+
+  @if (rolUsuario === "Administrador") {
+    <div class="admin-panel-card">
+      <h3>👑 Panel del Administrador</h3>
+      <p>Gestiona los usuarios del sistema desde aquí.</p>
+      <button [routerLink]="['/listaUsuarios/', id_usuario]">Ver Usuarios</button>
+    </div>
+  }
+
+
+  <!-- Mostrar lista de desafíos -->
+<div class="desafios-list">
+  @for (desafio of desafios; track desafio.id_desafio) {
+    <article class="desafio-card">
+      <img [src]="desafio.foto_url" alt="Foto del desafío" class="foto-desafio" />
+      <h2>{{ desafio.nombre }}</h2>
+      <p>{{ desafio.descripcion }}</p>
+      <p>
+        <strong>Desde:</strong> {{ desafio.fecha_inicio }} 
+        <strong>Hasta:</strong> {{ desafio.fecha_fin }}
+      </p>
+
+      @if (rolUsuario === 'Administrador') {
+        <div class="acciones-admin">
+          <button (click)="modificar(desafio)">Editar</button>
+          <button (click)="eliminarDesafio(desafio)">Eliminar</button>
+        </div>
+      }
+      <button [routerLink]="['/detalle-desafio', desafio.id_desafio, this.id_usuario]">Ver detalles</button>
+    </article>
+  }
+</div>
+
+  <!-- @if para mostrar botón solo al administrador -->
+ @if (rolUsuario === 'Administrador') {
+    @if(!editando){
+      <div class="admin-actions">
+        <button (click)="toggleForm()" class="btn-crear">Crear nuevo desafío</button>
+      </div>
+    }
+    <!-- Mostrar formulario si showForm está en true -->
+    @if (showForm) {
+      <form [formGroup]="desafioForm" (ngSubmit)="onSubmit()" class="form-crear-desafio">
+        <label>
+          Nombre:
+          <input type="text" formControlName="nombre" required />
+        </label>
+        <label>
+          Descripción:
+          <textarea formControlName="descripcion" required></textarea>
+        </label>
+        <label>
+          Fecha de inicio:
+          <input type="date" formControlName="fecha_inicio" required />
+        </label>
+        <label>
+          Fecha de fin:
+          <input type="date" formControlName="fecha_fin" required />
+        </label>
+        @if (!editando){
+        <label>
+          Foto del desafío:
+          <input type="file" (change)="onFileSelected($event)" required />
+        </label>
+        }
+        @if (errorMessage) {
+          <div class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+        }
+        <button type="submit" [disabled]="!desafioForm.valid">Guardar desafío</button>
+      </form>
+    }
+  }
+</section>

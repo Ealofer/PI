@@ -1,0 +1,226 @@
+.galeria-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.card-foto {
+  width: 100%;
+  height: 400px;
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  transition: transform 0.2s ease;
+}
+
+.card-foto:hover {
+  transform: translateY(-3px);
+}
+
+.card-foto img {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  background-color: #f0f0f0;
+  padding: 0.5rem;
+  flex-shrink: 0;
+}
+
+.card-foto h3 {
+  font-size: 1rem;
+  margin: 0.5rem 1rem 0;
+  color: #007acc;
+  text-align: center;
+}
+
+.card-info {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  text-align: center;
+}
+
+.card-info .descripcion {
+  color: #444;
+  margin: 0.3rem 0;
+  line-height: 1.3;
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-info .fecha {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.fotos-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.fotos-container h2 {
+  text-align: center;
+  color: #2a5298;
+  margin: 40px 0 20px;
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.acciones-navegacion {
+  margin-bottom: 20px;
+}
+
+.btn.volver {
+  background-color: #2a5298;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn.volver:hover {
+  background-color: #1e3c72;
+}
+
+.form-subida {
+  background-color: #f4f7fb;
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 10px;
+  border: 1px solid #d1dce9;
+}
+
+.form-subida label {
+  display: block;
+  margin: 12px 0 5px;
+  font-weight: 600;
+  color: #444;
+}
+
+.form-subida input,
+.form-subida textarea,
+.form-subida select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.form-subida input:focus,
+.form-subida textarea:focus {
+  outline: none;
+  border-color: #2a5298;
+  box-shadow: 0 0 6px rgba(42, 82, 152, 0.3);
+}
+
+.btn.enviar {
+  margin-top: 20px;
+  background-color: #2a5298;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn.enviar:disabled {
+  background-color: #9bb7d4;
+  cursor: not-allowed;
+}
+
+.subir-foto {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.subir-foto .btn.subir {
+  background-color: #2a5298;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.subir-foto .btn.subir:hover {
+  background-color: #1e3c72;
+}
+
+.card-foto.pendiente {
+  border: 2px dashed #ffcc00;
+  background-color: #fffdee;
+}
+
+.acciones {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 12px;
+}
+
+.acciones .btn {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn.aprobar {
+  background-color: #4caf50;
+  color: white;
+}
+
+.btn.rechazar {
+  background-color: #f57c00;
+  color: white;
+}
+
+.btn.eliminar {
+  background-color: #e53935;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+  .acciones .btn,
+  .btn.volver,
+  .btn.enviar {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+  }
+
+  .form-subida {
+    padding: 15px;
+  }
+}
+
+

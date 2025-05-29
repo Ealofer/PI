@@ -1,0 +1,236 @@
+section.container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+section.container h1 {
+  font-size: 2rem;
+  color: #2a5298;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.desafios-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.desafio-card {
+  background-color: #f8f9fc;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+}
+
+.desafio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.foto-desafio {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.desafio-card h2 {
+  font-size: 1.2rem;
+  color: #1e3c72;
+  margin-bottom: 10px;
+}
+
+.desafio-card p {
+  font-size: 0.95rem;
+  color: #444;
+  margin: 4px 0;
+}
+
+.desafio-card button,
+.admin-actions button,
+.acciones-admin button {
+  background-color: #2a5298;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-right: 8px;
+  transition: background-color 0.25s;
+}
+
+.desafio-card button:hover,
+.admin-actions button:hover,
+.acciones-admin button:hover {
+  background-color: #1e3c72;
+}
+
+.acciones-admin {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-actions {
+  text-align: center;
+  margin: 25px 0;
+}
+
+.btn-crear {
+  background-color: #4f73e9;
+}
+
+.form-crear-desafio {
+  margin-top: 20px;
+  background: #f4f6fc;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.form-crear-desafio label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #2a2e3b;
+}
+
+.form-crear-desafio input[type="text"],
+.form-crear-desafio input[type="date"],
+.form-crear-desafio textarea,
+.form-crear-desafio input[type="file"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  margin-top: 6px;
+  box-sizing: border-box;
+  background-color: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.form-crear-desafio input:focus,
+.form-crear-desafio textarea:focus {
+  outline: none;
+  border-color: #2a5298;
+  box-shadow: 0 0 6px rgba(42, 82, 152, 0.3);
+}
+
+.form-crear-desafio button[type="submit"] {
+  margin-top: 20px;
+  width: 100%;
+  background-color: #2a5298;
+  font-size: 1rem;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.form-crear-desafio button:disabled {
+  background-color: #b8cbe6;
+  cursor: not-allowed;
+}
+
+.admin-panel-card {
+  background: #e8f0fe;
+  border-left: 6px solid #2a5298;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+.admin-panel-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  color: #1e3c72;
+}
+
+.admin-panel-card p {
+  margin: 0 0 15px;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.admin-panel-card button {
+  background-color: #2a5298;
+  color: #fff;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.admin-panel-card button:hover {
+  background-color: #1e3c72;
+}
+
+.logout-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.btn.logout {
+  background-color: #e53935;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn.logout:hover {
+  background-color: #c62828;
+}
+
+.alert {
+  padding: 1rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.alert-danger {
+  background-color: #ffe5e5;
+  border-color: #ff4d4d;
+  color: #b30000;
+  box-shadow: 0 2px 6px rgba(255, 0, 0, 0.1);
+}
+
+
+@media (max-width: 600px) {
+  .desafios-list {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-admin {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones-admin button {
+    width: 100%;
+    margin-right: 0;
+  }
+}

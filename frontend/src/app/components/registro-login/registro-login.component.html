@@ -1,0 +1,87 @@
+<div class="overlay">
+    <div class="container">
+      <h1>{{ isLoginMode ? 'Iniciar sesión' : 'Registrarse' }}</h1>
+  
+      <form [formGroup]="isLoginMode ? loginForm : registerForm" (ngSubmit)="onSubmit()">
+  
+        @if (!isLoginMode) {
+          <div>
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" formControlName="nombre"/>
+
+            @if (registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched) {
+          <div class="error">
+            @if (registerForm.get('nombre')?.errors?.['required']) {
+              <small>El nombre es obligatorio</small>
+            }
+            </div>
+          }
+          </div>
+        }
+  
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" formControlName="email"/>
+
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <div class="error">
+            @if (registerForm.get('email')?.errors?.['required']) {
+              <small>El correo es obligatorio</small>
+            }
+            @if (registerForm.get('email')?.errors?.['email']) {
+              <small>El formato de correo no es válido</small>
+            }
+          </div>
+        }
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" formControlName="password"/>
+
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <div class="error">
+            @if (registerForm.get('password')?.errors?.['required']) {
+              <small>La contraseña es obligatoria</small>
+            }
+            @if (registerForm.get('password')?.errors?.['minlength']) {
+              <small>Debe tener al menos 6 caracteres</small>
+            }
+          </div>
+        }
+
+  
+        @if (!isLoginMode) {
+          <div>
+            <label for="confirmPassword">Confirmar contraseña</label>
+            <input type="password" id="confirmPassword" formControlName="confirmPassword"/>
+          </div>
+
+          @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
+          <div class="error">
+            @if (registerForm.get('confirmPassword')?.errors?.['required']) {
+              <small>Necesitas confirmar tu contraseña</small>
+            }
+            </div>
+          }
+        }
+        @if (!isLoginMode) {
+          <div>
+            <label>
+              <input type="checkbox" formControlName="isParticipante"/>
+              Quiero ser participante
+            </label>
+          </div>
+        }
+
+        @if (errorMessage) {
+          <div class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+        }
+        <button type="submit" [disabled]="(isLoginMode ? loginForm.invalid : registerForm.invalid)">{{ isLoginMode ? 'Entrar' : 'Registrar' }}</button>
+      </form>
+  
+      <button class="toggle" (click)="toggleMode()" >
+        {{ isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión' }}
+      </button>
+    </div>
+  </div>
+  

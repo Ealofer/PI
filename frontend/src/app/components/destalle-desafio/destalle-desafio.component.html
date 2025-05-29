@@ -1,0 +1,92 @@
+<div class="fotos-container">
+  <div class="acciones-navegacion">
+    <button class="btn volver" [routerLink]="['/principal/', id_usuario]">← Volver</button>
+  </div>
+  <h2>Galería de Fotos Aprobadas</h2>
+
+  <div class="galeria-cards">
+    @for (foto of fotosAprobadas; track foto.id_foto) {
+      <div class="card-foto">
+        <img [src]="foto.url_foto" alt="Foto aprobada" />
+        <h3>{{ foto.nombre_foto }}</h3>
+        <div class="card-info">
+          <p class="descripcion">Descripción: {{ foto.descripcion }}</p>
+          <span class="fecha">{{ foto.fecha_subida }}</span>
+          @if (foto.id_usuario === id_usuario){
+            <button (click)="toggleFormEditar(foto)">Editar</button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (showFormEditar){
+    <form [formGroup]="fotoFormEditar" (ngSubmit)="editarFoto()" class="form-subida" enctype="multipart/form-data">
+          <label>
+            Nombre de la Foto:
+            <input type="text" formControlName="nombre_foto" required />
+          </label>
+
+          <label>
+            Descripción:
+            <textarea formControlName="descripcion"></textarea>
+          </label>
+
+          <button type="submit" [disabled]="!fotoFormEditar.valid" class="btn enviar">
+            Guardar
+          </button>
+        </form>
+  }
+
+  @if (rolUsuario === 'Administrador') {
+    <h2>Fotos Pendientes de Aprobación</h2>
+    <div class="galeria-cards">
+      @for (foto of fotosPendientes; track foto.id_foto) {
+        <div class="card-foto pendiente">
+          <img [src]="foto.url_foto" alt="Foto pendiente" />
+          <h3>{{ foto.nombre_foto }}</h3>
+          <div class="card-info">
+            <p class="descripcion">{{ foto.descripcion }}</p>
+            <span class="fecha">{{ foto.fecha_subida }}</span>
+            <div class="acciones">
+              <button class="btn aprobar" (click)="cambiarEstado(foto, 'aprobada')">Aprobar</button>
+              <button class="btn rechazar" (click)="cambiarEstado(foto, 'rechazada')">Rechazar</button>
+              <button class="btn eliminar" (click)="eliminarFoto(foto)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (rolUsuario === 'Participante') {
+    <div class="subir-foto">
+      <button class="btn subir" (click)="toggleForm()">
+        {{ showForm ? 'Cancelar' : 'Subir nueva foto' }}
+      </button>
+
+      @if (showForm) {
+        <form [formGroup]="fotoForm" (ngSubmit)="subirFoto()" class="form-subida" enctype="multipart/form-data">
+          <label>
+            Nombre de la Foto:
+            <input type="text" formControlName="nombre_foto" required />
+          </label>
+
+          <label>
+            Descripción:
+            <textarea formControlName="descripcion"></textarea>
+          </label>
+
+          <label>
+            Archivo de la Foto:
+            <input type="file" (change)="onFileSelected($event)" required />
+          </label>
+          
+          <button type="submit" [disabled]="!fotoForm.valid || !fotoSeleccionado" class="btn enviar">
+            Enviar Foto
+          </button>
+        </form>
+      }
+    </div>
+  }
+</div>

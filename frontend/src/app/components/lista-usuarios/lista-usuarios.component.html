@@ -1,0 +1,71 @@
+<div class="usuarios-container">
+
+  <div class="acciones-navegacion">
+    <button class="btn volver" [routerLink]="['/principal', id_usuario]">← Volver</button>
+  </div>
+
+  <h2>Administración de Usuarios</h2>
+
+  <table class="tabla-usuarios">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Fecha de creación</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (usuario of usuarios; track usuario.id_usuario) {
+        <tr>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>{{ usuario.rol }}</td>
+          <td>{{ usuario.fecha_creacion }}</td>
+          <td>{{ usuario.activo ? 'Activo' : 'Inactivo' }}</td>
+          <td>
+            <button class="btn editar" (click)="editarUsuario(usuario)">Editar</button>
+            <button class="btn eliminar" (click)="eliminarUsuario(usuario)">Eliminar</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (showForm) {
+    <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()" class="formulario-usuario">
+      <h3>Editar usuario</h3>
+
+      <label>
+        Nombre:
+        <input type="text" formControlName="nombre" required/>
+      </label>
+
+      <label>
+        Email:
+        <input type="email" formControlName="email" required/>
+      </label>
+
+      <label>
+        Rol:
+        <select formControlName="rol" required>
+          <option value="Administrador">Administrador</option>
+          <option value="Participante">Participante</option>
+          <option value="Usuario">Usuario</option>
+        </select>
+      </label>
+
+      <label class="checkbox-inline">
+        <input type="checkbox" formControlName="activo" />Cuenta activa
+      </label>
+
+      <div class="acciones-form">
+        <button type="submit" [disabled]="!usuarioForm.valid" class="btn guardar">
+          Guardar Usuario
+        </button>
+      </div>
+    </form>
+  }
+</div>

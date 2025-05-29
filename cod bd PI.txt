@@ -1,0 +1,635 @@
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,                              -- Identificador único para cada usuario
+    nombre VARCHAR(255) NOT NULL,                                           -- Nombre completo del usuario
+    email VARCHAR(255) NOT NULL UNIQUE,                                     -- Correo electrónico, único
+    contraseña VARCHAR(255) NOT NULL,                                       -- Contraseña (Se pasa codificada)
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,                      -- Fecha de creación (actual por defecto)
+    rol ENUM('Administrador', 'Participante', 'Usuario') DEFAULT 'Usuario', -- Rol del usuario
+    activo BOOLEAN DEFAULT TRUE,                                            -- Si la cuenta está activa o inactiva
+);
+
+CREATE TABLE fotos (
+    id_foto INT AUTO_INCREMENT PRIMARY KEY,                                -- Identificador único para la foto
+    id_usuario INT,                                                        -- Referencia al usuario que sube la foto
+    id_desafio INT,                                                        -- Referencia al desafío al que pertenece la foto
+    url_foto VARCHAR(255) NOT NULL,                                        -- URL de la foto
+    descripcion TEXT,                                                      -- Descripción de la foto (opcional)
+    fecha_subida DATETIME DEFAULT CURRENT_TIMESTAMP,                       -- Fecha de subida de la foto
+    estado ENUM('pendiente', 'aprobada', 'rechazada') DEFAULT 'pendiente', -- Estado de la foto
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario), 
+    FOREIGN KEY (id_desafio) REFERENCES desafios(id_desafio)   
+);
+
+CREATE TABLE desafios (
+    id_desafio INT AUTO_INCREMENT PRIMARY KEY,       -- Identificador único para cada desafío
+    nombre_desafio VARCHAR(255) NOT NULL,            -- Nombre del desafío
+    foto_url VARCHAR(255) NOT NULL,                   -- URL de la imagen (obligatoria)
+    descripcion TEXT,                                -- Descripción del desafío
+    fecha_inicio DATETIME,                           -- Fecha de inicio del desafío
+    fecha_fin DATETIME                               -- Fecha de finalización del desafío
+);
+
+
+(puede)
+CREATE TABLE votos (
+    id_voto INT AUTO_INCREMENT PRIMARY KEY,
+    foto_id INT,                                        -- Foto que está siendo votada
+    usuario_id INT,                                     -- Usuario que vota
+    voto INT CHECK(voto BETWEEN 1 AND 5),               -- Voto de 1 a 5
+    fecha_voto DATETIME DEFAULT CURRENT_TIMESTAMP,      -- Fecha del voto
+    FOREIGN KEY (foto_id) REFERENCES fotos(id_foto),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario)
+);
+
+
+
+
+Conexión.php
+
+<?php
+// archivo: conexion.php
+
+// Configuración de la base de datos
+$servername = "localhost"; // o la dirección del servidor de tu base de datos
+$username = "root";        // Tu usuario de la base de datos
+$password = "";            // Tu contraseña de la base de datos
+$dbname = "rally_fotografico";  // El nombre de la base de datos
+
+// Crear la conexión
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Verificar la conexión
+if ($conn->connect_error) {
+    die("Conexión fallida: " . $conn->connect_error);
+}
+?>
+
+
+
+
+registrar.php
+
+<?php
+// Incluir la conexión a la base de datos
+include 'conexion.php';
+
+// Obtener los datos del formulario (recibidos como JSON)
+$data = json_decode(file_get_contents("php://input"), true);
+$nombre = $data['nombre'];
+$email = $data['email'];
+$password = password_hash($data['password'], PASSWORD_DEFAULT); // Encriptamos la contraseña
+
+// Verificar si el correo ya existe
+$sql_check = "SELECT * FROM usuarios WHERE email = '$email'";
+$result = $conn->query($sql_check);
+
+if ($result->num_rows > 0) {
+    echo json_encode(["status" => "error", "message" => "El correo ya está registrado."]);
+} else {
+    // Insertar el nuevo usuario
+    $sql = "INSERT INTO usuarios (nombre, email, contraseña) VALUES ('$nombre', '$email', '$password')";
+    
+    if ($conn->query($sql) === TRUE) {
+        echo json_encode(["status" => "success", "message" => "Usuario registrado exitosamente."]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Error al registrar el usuario."]);
+    }
+}
+
+// Cerrar la conexión
+$conn->close();
+?>
+
+
+
+
+
+login.php
+
+<?php
+// Incluir la conexión a la base de datos
+include 'conexion.php';
+
+// Obtener los datos del formulario (recibidos como JSON)
+$data = json_decode(file_get_contents("php://input"), true);
+$email = $data['email'];
+$password = $data['password'];
+
+// Verificar si el correo existe
+$sql = "SELECT * FROM usuarios WHERE email = '$email'";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    $user = $result->fetch_assoc();
+    
+    // Verificar la contraseña
+    if (password_verify($password, $user['contraseña'])) {
+        // Enviar el usuario junto con el rol
+        echo json_encode([
+            "status" => "success",
+            "message" => "Login exitoso",
+            "user" => [
+                "id_usuario" => $user['id_usuario'],
+                "nombre" => $user['nombre'],
+                "email" => $user['email'],
+                "rol" => $user['rol'], // Enviar el rol
+            ]
+        ]);
+    } else {
+        echo json_encode(["status" => "error", "message" => "Contraseña incorrecta."]);
+    }
+} else {
+    echo json_encode(["status" => "error", "message" => "El correo no está registrado."]);
+}
+
+// Cerrar la conexión
+$conn->close();
+?>
+
+
+
+
+
+
+desafios.php
+
+<?php
+include 'conexion.php';
+
+$sql = "SELECT * FROM desafios";
+$result = $conn->query($sql);
+
+$desafios = [];
+while ($row = $result->fetch_assoc()) {
+    $desafio = [
+        'id' => $row['id'],
+        'nombre' => $row['nombre'],
+        'descripcion' => $row['descripcion'],
+        'fecha_inicio' => $row['fecha_inicio'],
+        'fecha_fin' => $row['fecha_fin'],
+        'fotos' => []
+    ];
+
+    // Obtener fotos del desafío
+    $sql_fotos = "SELECT * FROM fotos WHERE desafio_id = " . $row['id'];
+    $result_fotos = $conn->query($sql_fotos);
+    while ($foto = $result_fotos->fetch_assoc()) {
+        $desafio['fotos'][] = [
+            'id' => $foto['id'],
+            'url' => $foto['url']
+        ];
+    }
+
+    $desafios[] = $desafio;
+}
+
+echo json_encode($desafios);
+$conn->close();
+?>
+
+
+
+
+
+
+aprobarRechazarFoto.php
+<?php
+include 'conexion.php';
+
+// Verificamos si se recibió una petición POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Obtenemos el ID de la foto y la acción (aprobar o rechazar)
+    $fotoId = isset($_POST['fotoId']) ? $_POST['fotoId'] : null;
+    $accion = isset($_POST['accion']) ? $_POST['accion'] : null;
+
+    // Verificamos que el fotoId y la acción sean válidos
+    if (isset($fotoId) && is_numeric($fotoId) && in_array($accion, ['aprobar', 'rechazar'])) {
+        
+        // Determinamos el nuevo estado de la foto según la acción
+        if ($accion == 'aprobar') {
+            $estado = 'aprobada';
+        } else {
+            $estado = 'rechazada';
+        }
+
+        // Actualizamos el estado de la foto en la base de datos
+        $sql = "UPDATE fotos SET estado = '$estado' WHERE id = $fotoId";
+
+        // Ejecutamos la consulta
+        if ($conn->query($sql) === TRUE) {
+            echo json_encode(['status' => 'success', 'message' => 'Foto ' . $estado . ' correctamente']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Error al actualizar el estado de la foto']);
+        }
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Datos inválidos']);
+    }
+} else {
+    echo json_encode(['status' => 'error', 'message' => 'Método no permitido']);
+}
+
+$conn->close();
+?>
+
+
+
+
+
+
+ANGULAR LOGIN
+
+auth.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private apiUrl = 'http://localhost/rally_fotografico_backend/'; // Asegúrate de que esta URL apunte a tu servidor PHP
+  private currentUser: any = null;
+
+  constructor(private http: HttpClient) {}
+
+  // Registro de un usuario
+  register(nombre: string, email: string, password: string, rol: string): Observable<any> {
+    const data = { nombre, email, password, rol };
+    return this.http.post(`${this.apiUrl}register.php`, data);
+  }
+
+  // Login de un usuario
+  login(email: string, password: string): Observable<any> {
+    const data = { email, password };
+    return this.http.post(`${this.apiUrl}login.php`, data);
+  }
+
+  // Guardar el usuario en el servicio
+  setCurrentUser(user: any): void {
+    this.currentUser = user;
+  }
+
+  // Obtener el usuario actual
+  getCurrentUser(): any {
+    return this.currentUser;
+  }
+
+  // Verificar si el usuario está autenticado
+  isAuthenticated(): boolean {
+    return this.currentUser != null;
+  }
+
+  // Obtener el rol del usuario
+  getUserRole(): string {
+    return this.currentUser ? this.currentUser.rol : '';
+  }
+
+  // Cerrar sesión
+  logout(): void {
+    this.currentUser = null;
+  }
+ 
+getDesafios(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}desafios.php`);
+  }
+
+   // Aprobar o rechazar una foto (dependiendo de la acción)
+  gestionarFoto(fotoId: number, accion: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}aprobar_rechazar_foto.php`, { fotoId, accion });
+  }
+
+  // Aprobar foto (llama a gestionarFoto con la acción "aprobar")
+  aprobarFoto(fotoId: number, accion: string): Observable<any> {
+    return this.gestionarFoto(fotoId, 'aprobar');
+  }
+
+  // Rechazar foto (llama a gestionarFoto con la acción "rechazar")
+  rechazarFoto(fotoId: number, accion: string): Observable<any> {
+    return this.gestionarFoto(fotoId, 'rechazar');
+  }
+}
+}
+
+
+
+
+
+
+login.component.ts
+
+import { Component } from '@angular/core';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+export class LoginComponent {
+  email = '';
+  password = '';
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  onSubmit(): void {
+    this.authService.login(this.email, this.password).subscribe(response => {
+      if (response.status === 'success') {
+        // Guardamos el usuario en el servicio
+        this.authService.setCurrentUser(response.user);
+        
+        // Redirigir según el rol
+        const role = this.authService.getUserRole();
+        if (role === 'Administrador') {
+          this.router.navigate(['/admin-dashboard']);  // Página de administrador
+        } else if (role === 'Participante') {
+          this.router.navigate(['/participante-dashboard']);  // Página de participante
+        } else {
+          this.router.navigate(['/usuario-dashboard']);  // Página de usuario
+        }
+      } else {
+        alert(response.message);
+      }
+    });
+  }
+}
+
+
+login.html (añadir diseño)
+<h2>Login</h2>
+<form (ngSubmit)="onSubmit()">
+  <div>
+    <label for="email">Correo electrónico</label>
+    <input type="email" id="email" [(ngModel)]="email" name="email" required />
+  </div>
+  <div>
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" [(ngModel)]="password" name="password" required />
+  </div>
+  <button type="submit">Login</button>
+</form>
+
+
+
+
+
+
+
+registro.component.ts
+import { Component } from '@angular/core';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.css']
+})
+export class RegisterComponent {
+  nombre: string = '';
+  email: string = '';
+  password: string = '';
+  confirmPassword: string = '';
+  rol: string = 'Usuario'; // Puedes permitir al usuario seleccionar el rol si es necesario
+
+  // Variable para mostrar mensajes de error
+  errorMessage: string = '';
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  onSubmit(): void {
+    // Validar si las contraseñas coinciden
+    if (this.password !== this.confirmPassword) {
+      this.errorMessage = "Las contraseñas no coinciden";
+      return;
+    }
+
+    // Enviar los datos al servicio de autenticación
+    this.authService.register(this.nombre, this.email, this.password, this.rol).subscribe(response => {
+      if (response.status === 'success') {
+        // Redirigir al login después de registrar
+        this.router.navigate(['/login']);
+      } else {
+        this.errorMessage = response.message || "Error al registrar el usuario.";
+      }
+    });
+  }
+}
+
+
+
+
+
+
+register.component.html
+<h2>Registrar Usuario</h2>
+
+<!-- Mostrar mensaje de error si lo hay -->
+<div *ngIf="errorMessage" class="error-message">
+  {{ errorMessage }}
+</div>
+
+<form (ngSubmit)="onSubmit()">
+  <div>
+    <label for="nombre">Nombre Completo</label>
+    <input type="text" id="nombre" [(ngModel)]="nombre" name="nombre" required />
+  </div>
+
+  <div>
+    <label for="email">Correo Electrónico</label>
+    <input type="email" id="email" [(ngModel)]="email" name="email" required />
+  </div>
+
+  <div>
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" [(ngModel)]="password" name="password" required />
+  </div>
+
+  <div>
+    <label for="confirmPassword">Confirmar Contraseña</label>
+    <input type="password" id="confirmPassword" [(ngModel)]="confirmPassword" name="confirmPassword" required />
+  </div>
+
+  <div>
+    <label for="rol">Rol</label>
+    <select id="rol" [(ngModel)]="rol" name="rol" required>
+      <option value="Usuario">Usuario</option>
+      <option value="Participante">Participante</option>
+      <option value="Administrador">Administrador</option>
+    </select>
+  </div>
+
+  <button type="submit">Registrar</button>
+</form>
+
+
+
+home.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnInit {
+  currentUser: any;
+  userRole: string = '';
+  desafiosActivos: any[] = [];  // Desafíos actuales
+  desafiosAntiguos: any[] = []; // Desafíos antiguos
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  ngOnInit(): void {
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.currentUser = this.authService.getCurrentUser();
+    this.userRole = this.currentUser ? this.currentUser.rol : '';
+
+    // Obtener los desafíos desde el backend
+    this.authService.getDesafios().subscribe((desafios) => {
+      const currentDate = new Date();
+      
+      // Separar los desafíos en activos y antiguos según las fechas
+      this.desafiosActivos = desafios.filter((desafio: any) => new Date(desafio.fecha_fin) >= currentDate);
+      this.desafiosAntiguos = desafios.filter((desafio: any) => new Date(desafio.fecha_fin) < currentDate);
+    });
+  }
+
+  // Verificar el rol del usuario
+  isUser(): boolean {
+    return this.userRole === 'Usuario';
+  }
+
+  isParticipant(): boolean {
+    return this.userRole === 'Participante';
+  }
+
+  isAdmin(): boolean {
+    return this.userRole === 'Administrador';
+  }
+
+ // Aprobar una foto
+  aprobarFoto(fotoId: number): void {
+    this.authService.aprobarFoto(fotoId).subscribe(
+      (response) => {
+        console.log('Foto aprobada:', response);
+        // Actualizar la vista o recargar las fotos pendientes
+        alert('Foto aprobada correctamente');
+      },
+      (error) => {
+        console.error('Error al aprobar foto:', error);
+        alert('Hubo un error al aprobar la foto');
+      }
+    );
+  }
+
+  // Rechazar una foto
+  rechazarFoto(fotoId: number): void {
+    this.authService.rechazarFoto(fotoId).subscribe(
+      (response) => {
+        console.log('Foto rechazada:', response);
+        // Actualizar la vista o recargar las fotos pendientes
+        alert('Foto rechazada correctamente');
+      },
+      (error) => {
+        console.error('Error al rechazar foto:', error);
+        alert('Hubo un error al rechazar la foto');
+      }
+    );
+  }
+}
+
+
+
+
+
+home.component.html
+<div *ngIf="isUser()">
+  <h2>Bienvenido, Usuario</h2>
+  <p>Aquí puedes ver los desafíos actuales y antiguos.</p>
+
+  <!-- Desafíos Activos -->
+  <div *ngIf="desafiosActivos.length > 0">
+    <h3>Desafíos Actuales</h3>
+    <div *ngFor="let desafio of desafiosActivos">
+      <h4>{{ desafio.nombre }}</h4>
+      <p>{{ desafio.descripcion }}</p>
+      <div *ngFor="let foto of desafio.fotos">
+        <img [src]="foto.url" alt="Foto del desafío" width="200" />
+        <button (click)="votar(foto.id)">Votar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desafíos Antiguos -->
+  <div *ngIf="desafiosAntiguos.length > 0">
+    <h3>Desafíos Antiguos</h3>
+    <div *ngFor="let desafio of desafiosAntiguos">
+      <h4>{{ desafio.nombre }}</h4>
+      <p>{{ desafio.descripcion }}</p>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isParticipant()">
+  <h2>Bienvenido, Participante</h2>
+  <p>Aquí puedes ver los desafíos actuales, antiguos y subir tus fotos.</p>
+
+  <!-- Desafíos Activos y Subir Foto -->
+  <div *ngIf="desafiosActivos.length > 0">
+    <h3>Desafíos Actuales</h3>
+    <div *ngFor="let desafio of desafiosActivos">
+      <h4>{{ desafio.nombre }}</h4>
+      <p>{{ desafio.descripcion }}</p>
+      <!-- Subir foto -->
+      <form (ngSubmit)="subirFoto()">
+        <label for="foto">Sube tu foto para este desafío</label>
+        <input type="file" id="foto" (change)="onFileSelect($event)" required />
+        <button type="submit">Subir Foto</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isAdmin()">
+  <h2>Bienvenido, Administrador</h2>
+  <p>Aquí puedes crear nuevos desafíos y moderar las fotos enviadas.</p>
+
+  <!-- Desafíos Activos -->
+  <div *ngIf="desafiosActivos.length > 0">
+    <h3>Desafíos Activos</h3>
+    <div *ngFor="let desafio of desafiosActivos">
+      <h4>{{ desafio.nombre }}</h4>
+      <p>{{ desafio.descripcion }}</p>
+      <!-- Moderar fotos subidas -->
+      <div *ngFor="let foto of desafio.fotos">
+        <img [src]="foto.url" alt="Foto del desafío" width="200" />
+        <button (click)="aprobarFoto(foto.id)">Aprobar</button>
+        <button (click)="rechazarFoto(foto.id)">Rechazar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crear nuevo desafío -->
+  <form (ngSubmit)="crearDesafio()">
+    <label for="nombreDesafio">Nombre del Desafío</label>
+    <input type="text" id="nombreDesafio" [(ngModel)]="nuevoDesafio.nombre" name="nombreDesafio" required />
+
+    <label for="descripcionDesafio">Descripción</label>
+    <textarea id="descripcionDesafio" [(ngModel)]="nuevoDesafio.descripcion" name="descripcionDesafio" required></textarea>
+
+    <button type="submit">Crear Desafío</button>
+  </form>
+</div> 
+
+
+
+
