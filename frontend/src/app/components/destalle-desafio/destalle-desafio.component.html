@@ -2,7 +2,7 @@
   <div class="acciones-navegacion">
     <button class="btn volver" [routerLink]="['/principal/', id_usuario]">← Volver</button>
   </div>
-  <h2>Galería de Fotos Aprobadas</h2>
+  <h2>Galería de Fotos</h2>
 
   <div class="galeria-cards">
     @for (foto of fotosAprobadas; track foto.id_foto) {
@@ -10,7 +10,7 @@
         <img [src]="foto.url_foto" alt="Foto aprobada" />
         <h3>{{ foto.nombre_foto }}</h3>
         <div class="card-info">
-          <p class="descripcion">Descripción: {{ foto.descripcion }}</p>
+          <p class="descripcion">{{ foto.descripcion }}</p>
           <span class="fecha">{{ foto.fecha_subida }}</span>
           @if (foto.id_usuario === id_usuario){
             <button (click)="toggleFormEditar(foto)">Editar</button>

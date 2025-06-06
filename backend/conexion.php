@@ -1,9 +1,8 @@
 <?php
-//Configuracion de la base de datos
-$servername = "localhost";  // La dirección del servidor de tu base de datos
-$username = "root";         // Tu usuario de la base de datos
-$password = "";             // Tu contraseña de la base de datos
-$dbname = "PI";             // El nombre de la base de datos
+$servername = "PMYSQL189.dns-servicio.com:3306";
+$username = "root2"; 
+$password = "Ti715un3?";  
+$dbname = "10944248_PI"; 
 
 try {
     
@@ -11,6 +10,6 @@ try {
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 } catch (PDOException $e) {
-    die("Conexión fallida: " . $e->getMessage());
+    die("Conexion fallida: " . $e->getMessage());
 }
 ?>

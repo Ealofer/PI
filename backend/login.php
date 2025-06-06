@@ -20,7 +20,7 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
-        if (password_verify($password, $user['contraseña'])) {
+        if (password_verify($password, $user['password'])) {
             echo json_encode([
                 "status" => "success",
                 "message" => "Login exitoso",

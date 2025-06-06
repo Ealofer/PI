@@ -2,7 +2,7 @@ CREATE TABLE usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,                              -- Identificador único para cada usuario
     nombre VARCHAR(255) NOT NULL,                                           -- Nombre completo del usuario
     email VARCHAR(255) NOT NULL UNIQUE,                                     -- Correo electrónico, único
-    contraseña VARCHAR(255) NOT NULL,                                       -- Contraseña (Se pasa codificada)
+    password VARCHAR(255) NOT NULL,                                       -- Contraseña (Se pasa codificada)
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,                      -- Fecha de creación (actual por defecto)
     rol ENUM('Administrador', 'Participante', 'Usuario') DEFAULT 'Usuario', -- Rol del usuario
     activo BOOLEAN DEFAULT TRUE,                                            -- Si la cuenta está activa o inactiva

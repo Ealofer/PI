@@ -30,7 +30,7 @@ try {
         exit;
     }else{
         $rol = $isParticipante ? "Participante" : "Usuario";
-        $sql2 = "INSERT INTO usuarios (nombre, email, contraseña, rol) VALUES (:nombre, :email, :password, :rol)";
+        $sql2 = "INSERT INTO usuarios (nombre, email, password, rol) VALUES (:nombre, :email, :password, :rol)";
         $stmt2 = $conn->prepare($sql2);
         $stmt2->bindParam(':nombre', $nombre);
         $stmt2->bindParam(':email', $email);

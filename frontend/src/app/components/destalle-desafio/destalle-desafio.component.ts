@@ -48,7 +48,6 @@ ngOnInit() {
   const idParam2 = this.route.snapshot.paramMap.get('id_usuario');
     if(idParam2){
       this.id_usuario = parseInt(idParam2, 10);
-      console.log(this.id_usuario);
       this.usuarioService.obtenerRolUsuario(this.id_usuario).subscribe({
         next: (res: any) => {
           if (res.status === 'success') {

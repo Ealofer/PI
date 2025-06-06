@@ -39,11 +39,11 @@ function subirFoto($conn, $data) {
     }
 
     $carpeta = "./imagenes/fotos/";
-    $nombreArchivo = $nombre . "." . $extension;
+    $nombreArchivo = uniqid("foto_") . "." . $extension;
     $ruta = $carpeta . $nombreArchivo;
     file_put_contents($ruta, $decoded);
 
-    $rutaGuardada = "http://localhost/clase/backend/imagenes/fotos/" . $nombreArchivo;
+    $rutaGuardada = "https://rallypieaf.es/backend/imagenes/fotos/" . $nombreArchivo;
 
     $sql = "INSERT INTO fotos (id_usuario, id_desafio, nombre_foto, url_foto, descripcion) 
             VALUES (:id_usuario, :id_desafio, :nombre, :url_foto, :descripcion)";

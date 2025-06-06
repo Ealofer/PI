@@ -41,7 +41,6 @@ export class PrincipalComponent {
     const idParam = this.route.snapshot.paramMap.get('id_usuario');
     if(idParam){
       this.id_usuario = parseInt(idParam, 10);
-      console.log(this.id_usuario);
       this.usuarioService.obtenerRolUsuario(this.id_usuario).subscribe({
         next: (res: any) => {
           if (res.status === 'success') {

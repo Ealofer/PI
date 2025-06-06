@@ -43,7 +43,7 @@ function subirDesafio($conn, $data) {
     $ruta = $carpeta . $nombreArchivo;
     file_put_contents($ruta, $decoded);
 
-    $rutaGuardada = "http://localhost/clase/backend/imagenes/desafios/" . $nombreArchivo;
+    $rutaGuardada = "https://rallypieaf.es/backend/imagenes/desafios/" . $nombreArchivo;
 
     $sql = "INSERT INTO desafios (nombre, foto_url, descripcion, fecha_inicio, fecha_fin) 
             VALUES (:nombre, :foto_url, :descripcion, :fecha_inicio, :fecha_fin)";
