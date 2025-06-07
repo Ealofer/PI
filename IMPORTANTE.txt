@@ -1,0 +1,4 @@
+Este proyecto esta configurado y listo para producción. No funcionará correctamente en local debido al enrutamiento.
+
+
+Link del proyecto desplegado: https://rallypieaf.es
